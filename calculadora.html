@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Segura</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .calculator {
+            background: #fff;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(255, 3, 3, 0.678);
+            width: 260px;
+        }
+        .screen {
+            width: 90%;
+            height: 50px;
+            font-size: 25px;
+            text-align: right;
+            margin-bottom: 25px;
+            padding: 10px;
+            border: 2px solid #ccc;
+            box-shadow: 0 0 20px rgba(3, 255, 179, 0.678);
+            border-radius: 10px;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .buttons button {
+            font-size: 18px;
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 25px;
+            border: none;
+            background-color: #f5f5f5;
+            transition: background-color 0.5s;
+        }
+        .buttons button:hover {
+            background-color: rgba(65, 58, 58, 0.199);
+            box-shadow: 0 0 20px rgb(0, 255, 157);
+        }
+        .history {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            box-shadow: 0 0 20px rgb(1, 247, 255);
+        }
+        .history p {
+            margin: 5px 0;
+            font-size: 15px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <input type="text" class="screen" id="screen" disabled>
+        <div class="buttons">
+            <button onclick="appendToScreen('1')" aria-label="Uno">1</button>
+            <button onclick="appendToScreen('2')" aria-label="Dos">2</button>
+            <button onclick="appendToScreen('3')" aria-label="Tres">3</button>
+            <button onclick="appendToScreen('+')" aria-label="Sumar">+</button>
+            <button onclick="appendToScreen('4')" aria-label="Cuatro">4</button>
+            <button onclick="appendToScreen('5')" aria-label="Cinco">5</button>
+            <button onclick="appendToScreen('6')" aria-label="Seis">6</button>
+            <button onclick="appendToScreen('-')" aria-label="Restar">-</button>
+            <button onclick="appendToScreen('7')" aria-label="Siete">7</button>
+            <button onclick="appendToScreen('8')" aria-label="Ocho">8</button>
+            <button onclick="appendToScreen('9')" aria-label="Nueve">9</button>
+            <button onclick="appendToScreen('*')" aria-label="Multiplicar">*</button>
+            <button onclick="appendToScreen('0')" aria-label="Cero">0</button>
+            <button onclick="clearScreen()" aria-label="Limpiar">CLEAR</button>
+            <button onclick="calculateResult()" aria-label="Resultado">=</button>
+            <button onclick="appendToScreen('/')" aria-label="Dividir">/</button>
+        </div>
+        <div class="history" id="history" role="log" aria-live="polite">
+            <h4>Historial:</h4>
+            <p>No hay operaciones previas.</p>
+        </div>
+    </div>
+
+    <script>
+        const screen = document.getElementById("screen");
+        const history = document.getElementById("history");
+
+        function appendToScreen(value) {
+            screen.value += value;
+        }
+
+        function clearScreen() {
+            screen.value = "";
+        }
+
+        function calculateResult() {
+            const expression = screen.value;
+
+            // Validación estricta: solo números, operadores y paréntesis
+            const isValid = /^[0-9+\-*/().\s]+$/.test(expression);
+
+            if (!isValid) {
+                screen.value = "Inválido";
+                return;
+            }
+
+            try {
+                const result = Function('"use strict"; return (' + expression + ')')();
+
+                if (result !== undefined) {
+                    // Eliminar texto por defecto si existe
+                    const defaultText = history.querySelector("p");
+                    if (defaultText && defaultText.textContent.includes("No hay operaciones")) {
+                        defaultText.remove();
+                    }
+
+                    const historyEntry = document.createElement("p");
+                    historyEntry.textContent = `${expression} = ${result}`;
+                    history.appendChild(historyEntry);
+                    screen.value = result;
+                }
+            } catch {
+                screen.value = "Error";
+            }
+        }
+    </script>
+
+</body>
+</html>
